@@ -1,9 +1,13 @@
 FROM golang:1.20-alpine
 
-RUN mkdir /app
 WORKDIR /app
-ADD . /app
 
-RUN go install -mod=mod github.com/githubnemo/CompileDaemon
+RUN apk update && apk add bash
 
-ENTRYPOINT CompileDaemon --build="go build main.go" --command=./main
+RUN go install github.com/cosmtrek/air@latest
+
+COPY . .
+
+RUN go mod tidy
+
+CMD ["air", "-c", ".air.toml"]
