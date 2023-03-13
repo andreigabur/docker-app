@@ -3,13 +3,31 @@ package main
 import (
     "fmt"
     "net/http"
+    "encoding/json"
+
     "docker-app/database"
 )
 
-func hello(w http.ResponseWriter, req *http.Request) {
+func enableCors(w *http.ResponseWriter) {
+    (*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
 
-    fmt.Fprintf(w, "Hi There!\nGo server with auto-reload here!\n\n")
-    fmt.Fprintf(w, "The list of users from Database\n")
+func getUsers(w http.ResponseWriter, req *http.Request) {
+
+    enableCors(&w)
+
+    type User struct {
+        Name string
+        Email string
+    }
+
+    type JsonResponse struct {
+        Type    string `json:"type"`
+        Data    []User `json:"data"`
+        Message string `json:"message"`
+    }
+
+    var users []User
 
     database.ConnectDB()
     rows, _ := database.DB.Raw("select name, email from users").Rows()
@@ -18,8 +36,15 @@ func hello(w http.ResponseWriter, req *http.Request) {
         var name string 
         var email string
         rows.Scan(&name, &email)
-        fmt.Fprintf(w, "name: %v, email: %v\n", name, email)
+        users = append(users, User{Name: name, Email: email})
     }
+
+    var response = JsonResponse{Type: "success", Data: users}
+    json.NewEncoder(w).Encode(response)
+}
+
+func hello(w http.ResponseWriter, req *http.Request) {
+    fmt.Fprintf(w, "Hi There!\nGo server with auto-reload here!\n\n")
 }
 
 func headers(w http.ResponseWriter, req *http.Request) {
@@ -35,6 +60,8 @@ func main() {
 
     http.HandleFunc("/", hello)
     http.HandleFunc("/headers", headers)
+
+    http.HandleFunc("/getusers", getUsers)
 
     http.ListenAndServe(":8080", nil)
 }
