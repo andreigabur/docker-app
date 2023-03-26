@@ -2,6 +2,27 @@ version: "3.7"
 
 services:
 
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+    networks:
+      - kafka-net
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+    networks:
+      - kafka-net
+
   server:
     build:
       context: ./server
@@ -10,6 +31,12 @@ services:
       - .env
     ports:
       - "8080:8080"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
     volumes:
       - ./server:/app
 
@@ -29,3 +56,7 @@ services:
 
 volumes:
   postgres-data:
+
+networks:
+  kafka-net:
+    driver: bridge
