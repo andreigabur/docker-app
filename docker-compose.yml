@@ -2,6 +2,20 @@ version: "3.7"
 
 services:
 
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      # volume for data storage
+      - postgres-data:/var/lib/postgresql/data
+      # volume with db initial scripts when db doesn't exist yet
+      - ./scripts:/docker-entrypoint-initdb.d
+
   zookeeper:
     image: bitnami/zookeeper:latest
     container_name: zookeeper
@@ -23,9 +37,9 @@ services:
     networks:
       - kafka-net
 
-  server:
+  server-go:
     build:
-      context: ./server
+      context: ./server-go
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -38,21 +52,20 @@ services:
     networks:
       - kafka-net
     volumes:
-      - ./server:/app
+      - ./server-go:/app
 
-  db:
-    image: postgres:alpine
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+  server-node:
+    build:
+      context: ./server-node
+      dockerfile: Dockerfile
     ports:
-      - "5432:5432"
+      - "3000:3000"
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
     volumes:
-      # volume for data storage
-      - postgres-data:/var/lib/postgresql/data
-      # volume with db initial scripts when db doesn't exist yet
-      - ./scripts:/docker-entrypoint-initdb.d
+      - ./server-node:/app
 
 volumes:
   postgres-data:
