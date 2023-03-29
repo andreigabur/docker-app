@@ -51,8 +51,8 @@ services:
       - kafka
     networks:
       - kafka-net
-    volumes:
-      - ./server-go:/app
+    # volumes:
+    #   - ./server-go:/app
 
   server-node:
     build:
@@ -64,8 +64,8 @@ services:
       - kafka
     networks:
       - kafka-net
-    volumes:
-      - ./server-node:/app
+    # volumes:
+    #   - ./server-node:/app
 
 volumes:
   postgres-data:
