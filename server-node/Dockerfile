@@ -2,8 +2,12 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY . /app
+COPY . ./
 
 RUN npm install
 
-CMD [ "node", "index.js" ]
+RUN npm install -g nodemon
+
+COPY . .
+
+CMD [ "nodemon", "index.js" ]

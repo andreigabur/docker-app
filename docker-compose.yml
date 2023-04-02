@@ -10,32 +10,34 @@ services:
       - POSTGRES_DB=${DB_NAME}
     ports:
       - "5432:5432"
+    networks:
+      - local-net
     volumes:
       # volume for data storage
       - postgres-data:/var/lib/postgresql/data
       # volume with db initial scripts when db doesn't exist yet
       - ./scripts:/docker-entrypoint-initdb.d
 
-  zookeeper:
-    image: bitnami/zookeeper:latest
-    container_name: zookeeper
-    environment:
-      ALLOW_ANONYMOUS_LOGIN: "yes"
-    networks:
-      - kafka-net
+  # zookeeper:
+  #   image: bitnami/zookeeper:latest
+  #   container_name: zookeeper
+  #   environment:
+  #     ALLOW_ANONYMOUS_LOGIN: "yes"
+  #   networks:
+  #     - local-net
 
-  kafka:
-    image: bitnami/kafka:latest
-    container_name: kafka
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      ALLOW_PLAINTEXT_LISTENER: "yes"
-      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-    networks:
-      - kafka-net
+  # kafka:
+  #   image: bitnami/kafka:latest
+  #   container_name: kafka
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - "9092:9092"
+  #   environment:
+  #     ALLOW_PLAINTEXT_LISTENER: "yes"
+  #     KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+  #   networks:
+  #     - local-net
 
   server-go:
     build:
@@ -48,11 +50,12 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
-      - kafka
+      - db
+      # - kafka
     networks:
-      - kafka-net
-    # volumes:
-    #   - ./server-go:/app
+      - local-net
+    volumes:
+      - ./server-go:/app
 
   server-node:
     build:
@@ -61,15 +64,17 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - kafka
+      - db
+      # - kafka
     networks:
-      - kafka-net
-    # volumes:
-    #   - ./server-node:/app
+      - local-net
+    volumes:
+      - ./server-node:/app
+      - /app/node_modules
 
 volumes:
   postgres-data:
 
 networks:
-  kafka-net:
+  local-net:
     driver: bridge

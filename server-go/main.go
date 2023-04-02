@@ -16,7 +16,7 @@ func enableCors(w *http.ResponseWriter) {
 }
 
 func hello(w http.ResponseWriter, req *http.Request) {
-    fmt.Fprintf(w, "Go server started on port 8080")
+    fmt.Fprintf(w, "Go server started on port 8080! Hi")
 }
 
 func kafka(w http.ResponseWriter, req *http.Request) {

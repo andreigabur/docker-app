@@ -6,7 +6,7 @@ RUN apk update && apk add bash
 
 RUN go install github.com/cosmtrek/air@latest
 
-COPY . /app
+COPY . .
 
 RUN go mod tidy
 
