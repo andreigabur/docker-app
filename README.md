@@ -17,7 +17,7 @@ To check the messages on a topic, connect to the kafka container terminal `docke
 After that, use `kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic my-topic` to consume the messages from my-topic. When you navigate to the http://localhost:8080/kafka a message will be produced to this topic.
 
 ### Run react web app
-Navigate to web-app and `npm start`
+Navigate to web-app and `npm run dev`
 
 ### Test react app 
 Navigate in the browser to http://localhost:3000 

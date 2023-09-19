@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+"use client"
 
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
 
 function UserRow({ user }) {
   return (
@@ -52,10 +51,7 @@ function App() {
   }, [])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-      </header>
+    <div className="Table">
       <UsersTable users={users} />
     </div>
   );
